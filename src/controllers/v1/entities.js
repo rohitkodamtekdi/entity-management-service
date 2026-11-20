@@ -728,12 +728,7 @@ module.exports = class Entities extends Abstract {
 
 				// Extract required data from event - check direct, oldValues, and newValues
 				const externalId = eventData.entityId ? eventData.entityId.toString() : null
-				// Old order picked oldValues.name first, so an update event carried the previous name
-				// const name = eventData.name || eventData.oldValues?.name || eventData.newValues?.name || null
-				const isUpdateEvent = eventData.eventType === 'update'
-				const name = isUpdateEvent
-					? eventData.newValues?.name || eventData.name || eventData.oldValues?.name || null
-					: eventData.name || eventData.oldValues?.name || eventData.newValues?.name || null
+				const name = eventData.name || eventData.oldValues?.name || eventData.newValues?.name || null
 
 				if (!externalId || !name) {
 					return reject({
@@ -785,19 +780,6 @@ module.exports = class Entities extends Abstract {
 					},
 					{ _id: 1, metaInformation: 1, entityType: 1 }
 				)
-
-				// Not reached: update events return earlier (they have no roles to pass the entityType check above)
-				// if (existingEntity && isUpdateEvent && eventData.newValues?.name && existingEntity.metaInformation?.name !== name) {
-				// 	const updatedEntity = await entitiesQueries.findOneAndUpdate(
-				// 		{ _id: existingEntity._id },
-				// 		{ $set: { 'metaInformation.name': name, updatedBy: userDetails.userInformation.userId } },
-				// 		{ new: true, projection: { _id: 1, metaInformation: 1, entityType: 1 } }
-				// 	)
-				// 	return resolve({
-				// 		message: CONSTANTS.apiResponses.ENTITY_UPDATED,
-				// 		result: updatedEntity,
-				// 	})
-				// }
 
 				if (existingEntity) {
 					// Entity already exists, return existing entity
